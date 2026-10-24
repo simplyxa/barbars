@@ -60,6 +60,24 @@
     return `<div class="footer">${links.map(([t, a, p]) => link(t, a, p)).join(' · ')}</div>`;
   }
 
+  // Манекен со слотами по бокам: слева голова и тело, справа руки и ноги.
+  function slotCell(slot) {
+    const it = s.equip[slot];
+    const body = it
+      ? `<span class="${QUALITIES[it.q].cls}">${esc(G.itemName(it))}${it.plus ? ' +' + it.plus : ''}</span>`
+      : '<span class="dim">пусто</span>';
+    const inner = `<span class="slot-name">${SLOTS[slot].name}</span>${body}`;
+    return it ? link(inner, 'item', it.id, `slot ${QUALITIES[it.q].cls}-edge`) : `<div class="slot empty">${inner}</div>`;
+  }
+
+  function paperDoll() {
+    return `<div class="paperdoll">
+      <div class="slots">${['helm', 'amulet', 'armor'].map(slotCell).join('')}</div>
+      <div class="doll">${window.Doll.render(s.equip, s.faction, { label: 'Манекен персонажа' })}</div>
+      <div class="slots">${['weapon', 'shield', 'boots'].map(slotCell).join('')}</div>
+    </div>`;
+  }
+
   const screens = {};
 
   screens.create = function () {
@@ -165,12 +183,8 @@
       <h2>Параметры</h2>
       <table class="stats">${Object.keys(STATS).map((k) => `<tr><td>${STATS[k].name}</td><td>${s.stats[k]}</td></tr>`).join('')}</table>
       ${s.points ? `<p class="flash good">Свободных очков: ${s.points} — ${link('распределить', 'screen', 'trainer')}</p>` : ''}
-      <h2>Снаряжение</h2><div class="menu">`;
-    for (const slot in SLOTS) {
-      const it = s.equip[slot];
-      h += `<div>${SLOTS[slot].name}: ${it ? link(item(it), 'item', it.id) : '<span class="dim">пусто</span>'}</div>`;
-    }
-    h += `</div><h2>Достижения</h2>
+      <h2>Снаряжение</h2>${paperDoll()}
+      <h2>Достижения</h2>
       <p class="small">Побед над врагами: ${r.monsters} · Смертей: ${r.deaths}<br>
       Арена: ${r.arenaWin} побед / ${r.arenaLoss} поражений<br>
       Захвачено башен: ${r.towers} · Повержено боссов: ${r.bosses}</p>`;
@@ -205,6 +219,13 @@
       <p>${SLOTS[it.slot].name} · <span class="${QUALITIES[it.q].cls}">${QUALITIES[it.q].name}</span> · требуется ${it.lvl} ур.</p>
       <p>${statsText(G.itemStats(it))}</p>`;
     if (f.where === 'bag' && cur) h += `<p class="dim small">Надето сейчас: ${item(cur)} — ${statsText(G.itemStats(cur))}</p>`;
+    if (f.where === 'bag') {
+      const tried = Object.assign({}, s.equip, { [it.slot]: it });
+      h += `<div class="tryon">
+        <figure>${window.Doll.render(s.equip, s.faction, { label: 'Сейчас' })}<figcaption>Сейчас</figcaption></figure>
+        <figure>${window.Doll.render(tried, s.faction, { label: 'С этой вещью' })}<figcaption>С этой вещью</figcaption></figure>
+      </div>`;
+    }
     h += '<div class="menu">';
     if (f.where === 'bag') {
       h += link('Надеть', 'equip', it.id, it.lvl > s.lvl ? 'off' : '');

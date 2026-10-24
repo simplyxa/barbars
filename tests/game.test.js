@@ -136,3 +136,22 @@ test('регенерация вне боя', () => {
   G.tick(s, 30000);
   assert.ok(s.hp > 1);
 });
+
+test('манекен меняется от надетых вещей', () => {
+  const Doll = require('../js/doll.js');
+  const s = fresh();
+  const base = Doll.render(s.equip, s.faction);
+  const seen = new Set([base]);
+  for (const slot of Object.keys(DATA.SLOTS)) {
+    for (let tier = 0; tier < 6; tier++) {
+      const equip = Object.assign({}, s.equip, { [slot]: { id: 99, slot, lvl: tier * 3 + 1, q: 2, plus: 0 } });
+      const svg = Doll.render(equip, s.faction);
+      assert.ok(!/undefined|NaN/.test(svg), `${slot} тир ${tier}`);
+      seen.add(svg.replace(/doll\d+/g, ''));
+    }
+  }
+  // Каждый слот и тир дают свой вид (кроме уже надетых стартовых вещей).
+  assert.ok(seen.size >= 34);
+  const glowing = Doll.render(Object.assign({}, s.equip, { weapon: Object.assign({}, s.equip.weapon, { plus: 7 }) }), s.faction);
+  assert.ok(glowing.includes('drop-shadow'));
+});

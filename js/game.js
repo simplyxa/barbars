@@ -107,10 +107,9 @@
 
   // ---------- Предметы ----------
 
-  G.itemName = (it) => {
-    const names = SLOTS[it.slot].names;
-    return names[Math.min(Math.floor((it.lvl - 1) / 3), names.length - 1)];
-  };
+  // Тир определяет и название, и внешний вид вещи на манекене.
+  G.itemTier = (it) => Math.min(Math.floor((it.lvl - 1) / 3), SLOTS[it.slot].names.length - 1);
+  G.itemName = (it) => SLOTS[it.slot].names[G.itemTier(it)];
   G.itemPrice = (it) => Math.round((it.lvl * 10 + 10) * Math.pow(QUALITIES[it.q].mult, 2) * (1 + 0.15 * it.plus));
   G.sellPrice = (it) => Math.round(G.itemPrice(it) * 0.3);
   G.upgradeCost = (it) => Math.round((it.lvl * 6 + 10) * QUALITIES[it.q].mult * (it.plus + 1));
