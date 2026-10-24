@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --bg: #1b1712;
   --panel: #241e17;
   --line: #3a3026;
@@ -27,7 +28,9 @@ body {
 #app {
   max-width: 480px;
   margin: 0 auto;
-  padding: 8px 12px 24px;
+  padding-block: 8px 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
   min-height: 100vh;
   background: var(--panel);
   border-left: 1px solid var(--line);

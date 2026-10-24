@@ -7,6 +7,7 @@
   const SAVE_KEY = 'northsteppe-save-v1';
   const $app = document.getElementById('app');
   let s = null;
+  let confirmReset = false;
 
   // ---------- Хелперы разметки ----------
 
@@ -344,7 +345,9 @@
       <textarea id="save-box" rows="4" placeholder="Вставьте код сохранения"></textarea>
       <div class="menu">${link('Загрузить из кода', 'importSave')}</div>
       <h2>Опасная зона</h2>
-      <div class="menu">${link('Удалить героя и начать заново', 'reset', undefined, 'danger')}</div>` + back();
+      <div class="menu">${confirmReset
+        ? `<div class="bad">Точно удалить героя? Это нельзя отменить.</div>${link('Да, удалить', 'reset', 'yes', 'danger')}${link('Нет, оставить', 'reset', 'no')}`
+        : link('Удалить героя и начать заново', 'reset', undefined, 'danger')}</div>` + back();
   };
 
   // ---------- Действия ----------
@@ -393,12 +396,12 @@
         G.flash(s, 'Герой загружен.', 'good');
         s.screen = 'loc';
       } catch (e) {
-        alert('Не удалось прочитать код сохранения.');
-        return 'keep';
+        G.flash(s, 'Не удалось прочитать код сохранения. Проверьте, что он скопирован целиком.', 'bad');
       }
     },
-    reset() {
-      if (!confirm('Точно удалить героя? Это нельзя отменить.')) return 'keep';
+    reset(p) {
+      if (p !== 'yes') { confirmReset = !p; return; }
+      confirmReset = false;
       try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* хранилище недоступно */ }
       s = null;
     },
